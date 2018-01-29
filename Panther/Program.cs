@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Panther
+namespace EngineTest
 {
     /// <summary>
     /// The main class.

@@ -1,23 +1,41 @@
-﻿using Microsoft.Xna.Framework;
+﻿#region Using
+using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-
-namespace Panther
+using Panther;
+#endregion
+namespace EngineTest
 {
-    /// <summary>
-    /// This is the main type for your game.
-    /// </summary>
     public class Game1 : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
-        
+        GraphicsDeviceManager GDM;
+        SpriteBatch SB;
+        GameLogic TheGame;
+        Camera TheCamera;
+
         public Game1()
         {
-            graphics = new GraphicsDeviceManager(this);
+            GDM = new GraphicsDeviceManager(this);
+            GDM.SynchronizeWithVerticalRetrace = true; //When true, 60FSP refresh rate locked.
+            GDM.GraphicsProfile = GraphicsProfile.HiDef;
+            GDM.PreferredBackBufferWidth = 1200;
+            GDM.PreferredBackBufferHeight = 900;
+            GDM.PreferMultiSampling = true; //Error in MonoGame 3.6 for DirectX, fixed in version 3.7.
+            GDM.PreparingDeviceSettings += SetMultiSampling;
+            GDM.ApplyChanges();
+            GDM.GraphicsDevice.RasterizerState = new RasterizerState(); //Must be after Apply Changes.
+
             Content.RootDirectory = "Content";
+
+            Helper.TheGame = this;
         }
 
+        void SetMultiSampling(object sender, PreparingDeviceSettingsEventArgs eventArgs)
+        {
+            PresentationParameters PresentParm = eventArgs.GraphicsDeviceInformation.PresentationParameters;
+            PresentParm.MultiSampleCount = 16;
+        }
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
         /// This is where it can query for any required services and load any non-graphic
@@ -27,6 +45,10 @@ namespace Panther
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            TheCamera = new Camera(this, new Vector3(-50, 50, 500), new Vector3(0, MathHelper.Pi, 0),
+                GraphicsDevice.Viewport.AspectRatio, 0.1f, 1000f);
+
+            TheGame = new GameLogic(this, TheCamera);
 
             base.Initialize();
         }
@@ -38,7 +60,7 @@ namespace Panther
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            SB = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
         }
@@ -59,7 +81,8 @@ namespace Panther
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
+                Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
             // TODO: Add your update logic here
@@ -73,7 +96,7 @@ namespace Panther
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.DarkSlateBlue);
 
             // TODO: Add your drawing code here
 
