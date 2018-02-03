@@ -19,13 +19,14 @@ namespace Panther
     class GameLogic : GameComponent
     {
         Camera TheCamera;
-        List<Box> TheBoxs;
-        Model BoxModel;
+        List<Cube> TheBoxs;
+        Terrain TheTerrain;
         Numbers ScoreDisplay;
         Letters WordDisplay;
+        Effect TerrainEffect;
         float Rotation;
 
-        GameState GameMode = GameState.MainMenu;
+        GameState GameMode = GameState.InPlay;
         KeyboardState OldKeyState;
 
         public GameState CurrentMode { get => GameMode; }
@@ -33,7 +34,7 @@ namespace Panther
         public GameLogic(Game game, Camera camera) : base(game)
         {
             TheCamera = camera;
-            TheBoxs = new List<Box>();
+            TheBoxs = new List<Cube>();
             ScoreDisplay = new Numbers(game);
             WordDisplay = new Letters(game);
 
@@ -47,24 +48,24 @@ namespace Panther
 
         public override void Initialize()
         {
-
             base.Initialize();
-            LoadContent();
+
         }
 
         public void LoadContent()
         {
-            BoxModel = Helper.LoadModel("Core/Cube");
+            TerrainEffect = Game.Content.Load<Effect>("Effects/Terrain");
 
-            BeginRun();
         }
 
         public void BeginRun()
         {
+            TheTerrain = new Terrain(Game, TheCamera, TerrainEffect, 32, 128, 128, 2);
+            Cube box = new Cube(Game, TheCamera);
 
             for (int i = 0; i < 3; i++)
             {
-                TheBoxs.Add(new Box(Game, TheCamera, BoxModel));
+                TheBoxs.Add(new Cube(Game, TheCamera));
             }
 
             TheBoxs[0].ModelScale = new Vector3(20);
@@ -82,27 +83,6 @@ namespace Panther
             TheBoxs[2].RotationVelocity = new Vector3(0, 0, 2);
             TheBoxs[2].AddAsChildOf(TheBoxs[1]);
             TheBoxs[2].DefuseColor = new Vector3(0.6f, 0.6f, 0.6f);
-            //TheBoxs[3].ModelScale = new Vector3(3);
-            //TheBoxs[3].Position = new Vector3(-10, 0, 0);
-            //TheBoxs[3].AddAsChildOf(TheBoxs[1]);
-            //TheBoxs[4].ModelScale = new Vector3(3);
-            //TheBoxs[4].Position = new Vector3(0, -10, 0);
-            //TheBoxs[4].AddAsChildOf(TheBoxs[1]);
-            //TheBoxs[5].ModelScale = new Vector3(3);
-            //TheBoxs[5].Position = new Vector3(0, 10, 0);
-            //TheBoxs[5].AddAsChildOf(TheBoxs[1]);
-            //TheBoxs[6].ModelScale = new Vector3(1);
-            //TheBoxs[6].Position = new Vector3(5, 0, 0);
-            //TheBoxs[6].AddAsChildOf(TheBoxs[2]);
-            //TheBoxs[7].ModelScale = new Vector3(1);
-            //TheBoxs[7].Position = new Vector3(-5, 0, 0);
-            //TheBoxs[7].AddAsChildOf(TheBoxs[2]);
-            //TheBoxs[8].ModelScale = new Vector3(1);
-            //TheBoxs[8].Position = new Vector3(0, 5, 0);
-            //TheBoxs[8].AddAsChildOf(TheBoxs[2]);
-            //TheBoxs[9].ModelScale = new Vector3(1);
-            //TheBoxs[9].Position = new Vector3(0, -5, 0);
-            //TheBoxs[9].AddAsChildOf(TheBoxs[2]);
 
             ScoreDisplay.Setup(new Vector3(0, 200, 0), 1);
             ScoreDisplay.SetNumber(100);

@@ -7,7 +7,7 @@ using System;
 
 namespace Panther
 {
-    class Plane : PositionedObject
+    class PlaneEntity : PositionedObject
     {
         Camera TheCamera;
         VertexPositionTexture[] Verts = new VertexPositionTexture[6];
@@ -19,13 +19,13 @@ namespace Panther
         public float Width;
         public float Height;
 
-        public Plane(Game game, Camera camera) : base(game)
+        public PlaneEntity(Game game, Camera camera) : base(game)
         {
             TheCamera = camera;
             PlaneBasicEffect = new BasicEffect(game.GraphicsDevice);
         }
 
-        public Plane(Game game, Camera camera, Texture2D texture) : base(game)
+        public PlaneEntity(Game game, Camera camera, Texture2D texture) : base(game)
         {
             TheCamera = camera;
             PlaneBasicEffect = new BasicEffect(game.GraphicsDevice);

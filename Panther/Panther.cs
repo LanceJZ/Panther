@@ -6,14 +6,19 @@ using Microsoft.Xna.Framework.Input;
 #endregion
 namespace Panther
 {
-    public class Game1 : Game
+    public class Panther : Game
     {
         GraphicsDeviceManager GDM;
         SpriteBatch SB;
         GameLogic TheGame;
         Camera TheCamera;
+        Timer FPSTimer;
+        KeyboardState OldKeyState;
+        float FPSFrames = 0;
+        bool PauseGame;
+        bool NotFirstFrame;
 
-        public Game1()
+        public Panther()
         {
             GDM = new GraphicsDeviceManager(this);
             GDM.SynchronizeWithVerticalRetrace = true; //When true, 60FSP refresh rate locked.
@@ -24,16 +29,23 @@ namespace Panther
             GDM.PreparingDeviceSettings += SetMultiSampling;
             GDM.ApplyChanges();
             GDM.GraphicsDevice.RasterizerState = new RasterizerState(); //Must be after Apply Changes.
+            IsFixedTimeStep = true; //When true, 60FSP refresh rate locked.
 
             Content.RootDirectory = "Content";
 
             Helper.Initialize(this, GDM, GraphicsDevice);
+            FPSTimer = new Timer(this, 1);
+
+            TheCamera = new Camera(this, new Vector3(-50, 150, 500), new Vector3(0, MathHelper.Pi, 0),
+                GraphicsDevice.Viewport.AspectRatio, 0.1f, 1000f);
+
+            TheGame = new GameLogic(this, TheCamera);
         }
 
         void SetMultiSampling(object sender, PreparingDeviceSettingsEventArgs eventArgs)
         {
             PresentationParameters PresentParm = eventArgs.GraphicsDeviceInformation.PresentationParameters;
-            PresentParm.MultiSampleCount = 16;
+            PresentParm.MultiSampleCount = 4;
         }
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
@@ -43,11 +55,6 @@ namespace Panther
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-            TheCamera = new Camera(this, new Vector3(-50, 50, 500), new Vector3(0, MathHelper.Pi, 0),
-                GraphicsDevice.Viewport.AspectRatio, 0.1f, 1000f);
-
-            TheGame = new GameLogic(this, TheCamera);
 
             base.Initialize();
         }
@@ -61,7 +68,7 @@ namespace Panther
             // Create a new SpriteBatch, which can be used to draw textures.
             SB = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            TheGame.LoadContent();
         }
 
         /// <summary>
@@ -73,6 +80,11 @@ namespace Panther
             // TODO: Unload any non ContentManager content here
         }
 
+        protected override void BeginRun()
+        {
+            base.BeginRun();
+            TheGame.BeginRun();
+        }
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -84,9 +96,27 @@ namespace Panther
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            KeyboardState KBS = Keyboard.GetState();
 
-            base.Update(gameTime);
+            if (TheGame.CurrentMode == GameState.InPlay)
+            {
+                if (!OldKeyState.IsKeyDown(Keys.P) && KBS.IsKeyDown(Keys.P))
+                    PauseGame = !PauseGame;
+            }
+
+            OldKeyState = Keyboard.GetState();
+
+            if (!PauseGame)
+                base.Update(gameTime);
+
+            FPSFrames++;
+
+            if (FPSTimer.Elapsed)
+            {
+                FPSTimer.Reset();
+                System.Diagnostics.Debug.WriteLine("FPS " + FPSFrames.ToString());
+                FPSFrames = 0;
+            }
         }
 
         /// <summary>
@@ -96,8 +126,6 @@ namespace Panther
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.DarkSlateBlue);
-
-            // TODO: Add your drawing code here
 
             base.Draw(gameTime);
         }
