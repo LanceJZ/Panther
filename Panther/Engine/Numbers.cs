@@ -11,16 +11,11 @@ namespace Panther
         Camera TheCamera;
         Model[] NumberModels = new Model[10];
         List<ModelEntity> NumberEntities = new List<ModelEntity>();
-        //public Vector3 Position = Vector3.Zero;
-        //public Vector3 Rotation = Vector3.Zero;
-        //float Scale;
 
         public Numbers(Game game) : base(game)
         {
             TheCamera = new Camera(game, new Vector3(0, 0, 1000),
                 new Vector3(0, MathHelper.Pi, 0), 0, 900, 1010);
-
-            //game.Components.Add(this);
         }
 
         public override void Initialize()
@@ -30,35 +25,25 @@ namespace Panther
             LoadContent();
         }
 
-        public void LoadContent()
+        public void Setup(Vector3 position, float scale)
         {
-            for (int i = 0; i < 10; i++)
-            {
-                NumberModels[i] = Helper.LoadModel("Core/" + i.ToString());
-            }
+            Position = position;
+            Scale = scale;
         }
 
-        public void ProcessNumber(int number, Vector3 locationStart, Vector3 rotation, float scale)
+        public void Setup(Vector3 position, Vector3 rotation, float scale)
         {
             Rotation = rotation;
-            ProcessNumber(number, locationStart, scale);
+            Setup(position, scale);
         }
 
-        public void ProcessNumber(int number, Vector3 locationStart, float scale)
+        public void SetNumber(int number, Vector3 defuseColor)
         {
-            Position = locationStart;
-            Scale = scale;
-
-            ChangeNumber(number);
-        }
-
-        public void ChangeNumber(int number, Vector3 defuseColor)
-        {
-            ChangeNumber(number);
+            SetNumber(number);
             ChangeColor(defuseColor);
         }
 
-        public void ChangeNumber(int number)
+        public void SetNumber(int number)
         {
             int numberIn = number;
 
@@ -76,11 +61,10 @@ namespace Panther
                 // with the lowest digit.
             } while (numberIn > 0);
 
-            ChangePosition();
-            ChangeRotation();
+            SetPosition();
         }
 
-        public void ChangePosition()
+        public void SetPosition()
         {
             float space = 0;
 
@@ -92,31 +76,13 @@ namespace Panther
             }
         }
 
-        public void Change(Vector3 position, Vector3 rotation)
+        public void ChangeEachRotation(Vector3 rotation)
         {
-            ChangePosition(position);
-            ChangeRotation(rotation);
-        }
-
-        public void ChangeRotation()
-        {
-            foreach(ModelEntity number in NumberEntities)
+            foreach (ModelEntity number in NumberEntities)
             {
-                number.Rotation = Rotation;
+                number.Rotation = rotation;
                 number.MatrixUpdate();
             }
-        }
-
-        public void ChangeRotation(Vector3 rotation)
-        {
-            Rotation = rotation;
-            ChangeRotation();
-        }
-
-        public void ChangePosition(Vector3 position)
-        {
-            Position = position;
-            ChangePosition();
         }
 
         public void ChangeColor(Vector3 defuseColor)
@@ -138,6 +104,14 @@ namespace Panther
             }
         }
 
+        void LoadContent()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                NumberModels[i] = Helper.LoadModel("Core/" + i.ToString());
+            }
+        }
+
         void RemoveNumber(ModelEntity numberE)
         {
             NumberEntities.Remove(numberE);
@@ -145,7 +119,7 @@ namespace Panther
 
         void ClearNumbers()
         {
-            foreach(ModelEntity digit in NumberEntities)
+            foreach (ModelEntity digit in NumberEntities)
             {
                 digit.Remove();
             }

@@ -3,9 +3,8 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Panther;
 #endregion
-namespace EngineTest
+namespace Panther
 {
     public class Game1 : Game
     {
@@ -28,7 +27,7 @@ namespace EngineTest
 
             Content.RootDirectory = "Content";
 
-            Helper.TheGame = this;
+            Helper.Initialize(this, GDM, GraphicsDevice);
         }
 
         void SetMultiSampling(object sender, PreparingDeviceSettingsEventArgs eventArgs)

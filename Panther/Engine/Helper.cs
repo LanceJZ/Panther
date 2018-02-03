@@ -15,12 +15,13 @@ namespace Panther
         static GraphicsDeviceManager TheGraphicsDM;
         static GraphicsDevice TheGraphicsD;
         static Random RandomNumberGenerator = new Random(DateTime.Now.Millisecond);
+        static Game GameRef;
         #endregion
         #region Properties
-        public static Random Rand { get=> RandomNumberGenerator; }
+        public static Random Rand { get => RandomNumberGenerator; }
         public static GraphicsDeviceManager GraphicsDM { get => TheGraphicsDM; }
         public static GraphicsDevice Graphics { get => TheGraphicsD; }
-        public static Game TheGame { get; set; }
+        public static Game TheGame { get=>GameRef; }
         /// <summary>
         /// Returns the window size in pixels, of the height.
         /// </summary>
@@ -44,7 +45,7 @@ namespace Panther
         public static void Initialize(Game game, GraphicsDeviceManager graphicsDeviceManager,
             GraphicsDevice graphicsDevice)
         {
-            TheGame = game;
+            GameRef = game;
             TheGraphicsDM = graphicsDeviceManager;
             TheGraphicsD = graphicsDevice;
         }

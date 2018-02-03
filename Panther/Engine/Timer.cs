@@ -7,10 +7,9 @@ namespace Panther
         private float TheSeconds;
         private float TheAmount;
 
-        public float Seconds
-        {
-            get { return TheSeconds; }
-        }
+        public float Seconds { get => TheSeconds; }
+        public float TimeLeft { get => TheAmount - TheSeconds; }
+        public bool Elapsed { get => (TheSeconds > TheAmount); }
 
         public float Amount
         {
@@ -23,20 +22,12 @@ namespace Panther
             }
         }
 
-        public bool Elapsed
-        {
-            get
-            {
-                return (TheSeconds > TheAmount);
-            }
-        }
-
         public Timer(Game game) : base(game)
         {
             Game.Components.Add(this);
         }
 
-        public Timer (Game game, float amount) : base(game)
+        public Timer(Game game, float amount) : base(game)
         {
             Amount = amount;
             Game.Components.Add(this);
@@ -52,8 +43,10 @@ namespace Panther
         {
             base.Update(gameTime);
 
-            if (!Elapsed)
-                TheSeconds += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            TheSeconds += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (Elapsed)
+                Enabled = false;
         }
 
         public void Reset()
@@ -64,8 +57,7 @@ namespace Panther
 
         public void Reset(float time)
         {
-            TheAmount = time;
-            Reset();
+            Amount = time;
         }
     }
 }

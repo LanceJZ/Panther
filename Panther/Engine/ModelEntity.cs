@@ -73,6 +73,10 @@ namespace Panther
 
         public PositionedObject PO { get => ThePO; }
 
+        public Model ModelRef { get => TheModel; }
+
+        public Matrix WorldMatrixRef { get => BaseWorld; }
+
         public BoundingBox Bounds
         {
             get
@@ -89,6 +93,17 @@ namespace Panther
                 Vector3 boxMax = Vector3.Max(v1, v2);
 
                 return new BoundingBox(boxMin, boxMax);
+            }
+        }
+
+        public BoundingSphere Sphere
+        {
+            get
+            {
+                BoundingSphere sphere = TheModel.Meshes[0].BoundingSphere;
+                sphere.Radius *= 0.75f;
+                sphere = sphere.Transform(BaseWorld);
+                return sphere;
             }
         }
 
@@ -118,7 +133,7 @@ namespace Panther
                 base.Enabled = value;
                 Visible = value;
 
-                foreach(ModelEntity me in Children)
+                foreach (ModelEntity me in Children)
                 {
                     me.Visible = value;
                 }
@@ -177,6 +192,7 @@ namespace Panther
         #region Initialize-Load-BeginRun
         public override void Initialize()
         {
+            Visible = false;
             base.Initialize();
             LoadContent();
             BeginRun();
@@ -242,6 +258,7 @@ namespace Panther
                     }
                 }
 
+                Game.SuppressDraw();
                 Enabled = true;
             }
             else
@@ -280,6 +297,7 @@ namespace Panther
                 }
 
                 TheModel.CopyAbsoluteBoneTransformsTo(BoneTransforms);
+                BaseWorld = TheModel.Root.Transform;
             }
         }
         #endregion
@@ -355,11 +373,21 @@ namespace Panther
         }
         #endregion
         #region Helper Methods
+        /// <summary>
+        /// Parents of any children must be added first or they will not be seen
+        /// by the children added later. Active Dependent by default.
+        /// </summary>
+        /// <param name="parent">Parent Entity</param>
         public void AddAsChildOf(ModelEntity parent)
         {
             AddAsChildOf(parent, true);
         }
-
+        /// <summary>
+        /// Parents of any children must be added first or they will not be seen
+        /// by the children added later.
+        /// </summary>
+        /// <param name="parent">Parent Entity</param>
+        /// <param name="activeDepedent">True if child active state depends on parent.</param>
         public void AddAsChildOf(ModelEntity parent, bool activeDepedent)
         {
             parent.Children.Add(this);
@@ -398,6 +426,25 @@ namespace Panther
         public Matrix RotateMatrix(Vector3 rotation)
         {
             return Matrix.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z);
+        }
+
+        public bool IsCollision(Model model1, Matrix world1, Model model2, Matrix world2)
+        {
+            for (int meshIndex1 = 0; meshIndex1 < model1.Meshes.Count; meshIndex1++)
+            {
+                BoundingSphere sphere1 = model1.Meshes[meshIndex1].BoundingSphere;
+                sphere1 = sphere1.Transform(world1);
+
+                for (int meshIndex2 = 0; meshIndex2 < model2.Meshes.Count; meshIndex2++)
+                {
+                    BoundingSphere sphere2 = model2.Meshes[meshIndex2].BoundingSphere;
+                    sphere2 = sphere2.Transform(world2);
+
+                    if (sphere1.Intersects(sphere2))
+                        return true;
+                }
+            }
+            return false;
         }
         #endregion
     }

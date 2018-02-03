@@ -4,9 +4,8 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
 using System.Collections.Generic;
 using System;
-using Panther;
 
-namespace EngineTest
+namespace Panther
 {
     class Box : ModelEntity
     {

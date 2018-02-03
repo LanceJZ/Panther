@@ -11,7 +11,6 @@ namespace Panther
     class Explode : GameComponent
     {
         List<ExplodeParticle> Particles;
-        Model Cube;
         Camera TheCamera;
         Vector3 TheColor = Vector3.One;
         Vector3 TheEmissiveColor = Vector3.Zero;
@@ -37,7 +36,7 @@ namespace Panther
 
         public void LoadContent()
         {
-            Cube = Helper.LoadModel("Core/Cube");
+
         }
 
         public void BeginRun()
@@ -64,6 +63,12 @@ namespace Panther
             base.Update(gameTime);
         }
 
+        public void Setup(Vector3 color, Vector3 lightcolor)
+        {
+            TheColor = color;
+            TheEmissiveColor = lightcolor;
+        }
+
         public void Spawn(Vector3 position, float radius, int minCount, float speed,
             float scale, float life)
         {
@@ -76,9 +81,7 @@ namespace Panther
 
                 for (int i = 0; i < more; i++)
                 {
-                    Particles.Add(new ExplodeParticle(Game, TheCamera, Cube));
-                    Particles.Last().DefuseColor = TheColor;
-                    Particles.Last().EmissiveColor = TheEmissiveColor;
+                    Particles.Add(new ExplodeParticle(Game, TheCamera));
                 }
             }
 
@@ -88,6 +91,8 @@ namespace Panther
                     Helper.RandomMinMax(-radius, radius), 0);
 
                 particle.Spawn(position, speed, scale, life);
+                particle.DefuseColor = TheColor;
+                particle.EmissiveColor = TheEmissiveColor;
             }
         }
 

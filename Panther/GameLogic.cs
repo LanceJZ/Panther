@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework.Audio;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-using Panther;
 
 public enum GameState
 {
@@ -15,7 +14,7 @@ public enum GameState
     MainMenu
 };
 
-namespace EngineTest
+namespace Panther
 {
     class GameLogic : GameComponent
     {
@@ -23,7 +22,7 @@ namespace EngineTest
         List<Box> TheBoxs;
         Model BoxModel;
         Numbers ScoreDisplay;
-        Words WordDisplay;
+        Letters WordDisplay;
         float Rotation;
 
         GameState GameMode = GameState.MainMenu;
@@ -36,7 +35,7 @@ namespace EngineTest
             TheCamera = camera;
             TheBoxs = new List<Box>();
             ScoreDisplay = new Numbers(game);
-            WordDisplay = new Words(game);
+            WordDisplay = new Letters(game);
 
             // Screen resolution is 1200 X 900.
             // Y positive is Up.
@@ -105,8 +104,9 @@ namespace EngineTest
             //TheBoxs[9].Position = new Vector3(0, -5, 0);
             //TheBoxs[9].AddAsChildOf(TheBoxs[2]);
 
-            ScoreDisplay.ProcessNumber(100, new Vector3(0, 200, 0), 1);
-            WordDisplay.ProcessWords("This is a TEST", Vector3.Zero, 1);
+            ScoreDisplay.Setup(new Vector3(0, 200, 0), 1);
+            ScoreDisplay.SetNumber(100);
+            WordDisplay.Setup("This is a TEST", Vector3.Zero, 1);
         }
 
         public override void Update(GameTime gameTime)
