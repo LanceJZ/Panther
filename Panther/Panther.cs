@@ -127,7 +127,14 @@ namespace Panther
         {
             GraphicsDevice.Clear(Color.DarkSlateBlue);
 
-            base.Draw(gameTime);
+            if (NotFirstFrame)
+            {
+                base.Draw(gameTime);
+            }
+            else
+            {
+                NotFirstFrame = true;
+            }
         }
     }
 }

@@ -25,16 +25,30 @@ namespace Panther
             LoadContent();
         }
 
-        public void Setup(Vector3 position, float scale)
+        public void Setup(Vector2 position, float scale)
         {
-            Position = position;
+            Position = new Vector3(position, 0);
             Scale = scale;
         }
 
-        public void Setup(Vector3 position, Vector3 rotation, float scale)
+        public void Setup(Vector2 position, Vector3 rotation, float scale)
         {
             Rotation = rotation;
             Setup(position, scale);
+        }
+
+        public void Setup(int number, Vector2 position, float scale)
+        {
+            Position = new Vector3(position, 0);
+            Scale = scale;
+            SetNumber(number);
+        }
+
+        public void Setup(int number, Vector2 position, Vector3 rotation, float scale)
+        {
+            Rotation = rotation;
+            Setup(position, scale);
+            SetNumber(number);
         }
 
         public void SetNumber(int number, Vector3 defuseColor)

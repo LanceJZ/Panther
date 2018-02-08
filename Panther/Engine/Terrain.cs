@@ -28,21 +28,20 @@ namespace Panther
         float TextureScale;
         float MaxHeight;
         float HeightScale;
+        float Scale;
         float[,] Heights;
-        int Width, Height;
         #endregion
         #region Constructor
-        public Terrain(Game game, Camera camera, Effect effect,
-            float textureScale, int width, int height, float heightScale) : base(game)
+        public Terrain(Game game, Camera camera, Effect effect, float textureScale,
+            float heightScale, float scale) : base(game)
         {
             R_Graphics = Helper.Graphics;
             R_Camera = camera;
             R_Effect = effect;
             TextureScale = textureScale;
-            Width = width;
-            Height = height;
             HeightScale = heightScale;
             MaxHeight = heightScale;
+            Scale = scale;
 
             game.Components.Add(this);
         }
@@ -71,9 +70,9 @@ namespace Panther
 
         public void BeginRun()
         {
-            ReadHeightMap(HeightMap, Width, Height, HeightScale);
-            BuildVertexBuffer(Width, Height);
-            BuildIndexBuffer(Width, Height);
+            ReadHeightMap();
+            BuildVertexBuffer();
+            BuildIndexBuffer();
             CalculateNormals();
         }
 
@@ -114,15 +113,56 @@ namespace Panther
             base.Draw(gameTime);
         }
         #endregion
-        #region HeightMap
-        void ReadHeightMap(Texture2D heightMap, int width, int height, float heightScale)
+        #region Public Methods
+        public float GetHeight(Vector3 position)
         {
+            return GetHeight(position.X, position.Z);
+        }
+
+        public float GetHeight(float x, float z)
+        {
+            int xmin = (int)Math.Floor(x);
+            int xmax = xmin + 1;
+            int zmin = (int)Math.Floor(z);
+            int zmax = zmin + 1;
+
+            if (xmin < 0 || zmin < 0 ||
+                xmax > Heights.GetUpperBound(0) || zmax > Heights.GetUpperBound(1))
+            {
+                return 0;
+            }
+
+            Vector3 p1 = new Vector3(xmin, Heights[xmin, zmax], zmax);
+            Vector3 p2 = new Vector3(xmax, Heights[xmax, zmin], zmin);
+            Vector3 p3;
+
+            if ((x - xmin) + (z - zmin) <= 1)
+            {
+                p3 = new Vector3(xmin, Heights[xmin, zmin], zmin);
+            }
+            else
+            {
+                p3 = new Vector3(xmax, Heights[xmax, zmax], zmax);
+            }
+
+            Plane plane = new Plane(p1, p2, p3);
+            Ray ray = new Ray(new Vector3(x, 0, z), Vector3.Up);
+            float? height = ray.Intersects(plane);
+
+            return height.HasValue ? height.Value : 0f;
+        }
+        #endregion
+        #region HeightMap
+        void ReadHeightMap()
+        {
+            int width = HeightMap.Width;
+            int height = HeightMap.Height;
             float min = float.MaxValue;
             float max = float.MinValue;
 
             Heights = new float[width, height];
-            Color[] heightMapData = new Color[heightMap.Width * heightMap.Height];
-            heightMap.GetData(heightMapData);
+            Color[] heightMapData = new Color[width * height];
+            HeightMap.GetData(heightMapData);
 
             for (int x = 0; x < width; x++)
             {
@@ -141,21 +181,24 @@ namespace Panther
             {
                 for(int z = 0; z < height; z++)
                 {
-                    Heights[x, z] = ((Heights[x, z] - min) / range) * heightScale;
+                    Heights[x, z] = ((Heights[x, z] - min) / range) * HeightScale;
                 }
             }
         }
         #endregion
         #region Vertex Buffer
-        void BuildVertexBuffer(int width, int height)
+        void BuildVertexBuffer()
         {
+            int width = HeightMap.Width;
+            int height = HeightMap.Height;
             VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[width * height];
 
             for (int x = 0; x < width; x++)
             {
                 for (int z = 0; z < height; z++)
                 {
-                    vertices[x + (z * width)].Position = new Vector3(x - (width / 2), Heights[x, z], z - (height / 2));
+                    vertices[x + (z * width)].Position = new Vector3((x - (width / 2)) * Scale,
+                        (Heights[x, z]) * Scale, (z - (height / 2)) * Scale);
                     vertices[x + (z * width)].TextureCoordinate =
                         new Vector2(x / TextureScale, z / TextureScale);
                 }
@@ -167,8 +210,10 @@ namespace Panther
         }
         #endregion
         #region Index Buffer
-        void BuildIndexBuffer(int width, int height)
+        void BuildIndexBuffer()
         {
+            int width = HeightMap.Width;
+            int height = HeightMap.Height;
             int indexCount = (width - 1) * (height - 1) * 6;
             short[] indices = new short[indexCount];
             int counter = 0;
@@ -231,39 +276,6 @@ namespace Panther
             }
 
             TheVBuffer.SetData(vertices);
-        }
-
-        public float GetHeight(float x, float z)
-        {
-            int xmin = (int)Math.Floor(x);
-            int xmax = xmin + 1;
-            int zmin = (int)Math.Floor(z);
-            int zmax = zmin + 1;
-
-            if (xmin < 0 || zmin < 0 ||
-                xmax > Heights.GetUpperBound(0) || zmax > Heights.GetUpperBound(1))
-            {
-                return 0;
-            }
-
-            Vector3 p1 = new Vector3(xmin, Heights[xmin, zmax], zmax);
-            Vector3 p2 = new Vector3(xmax, Heights[xmax, zmin], zmin);
-            Vector3 p3;
-
-            if ((x - xmin) + (z - zmin) <= 1)
-            {
-                p3 = new Vector3(xmin, Heights[xmin, zmin], zmin);
-            }
-            else
-            {
-                p3 = new Vector3(xmax, Heights[xmax, zmax], zmax);
-            }
-
-            Plane plane = new Plane(p1, p2, p3);
-            Ray ray = new Ray(new Vector3(x, 0, z), Vector3.Up);
-            float? height = ray.Intersects(plane);
-
-            return height.HasValue ? height.Value : 0f;
         }
         #endregion
     }

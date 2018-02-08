@@ -18,7 +18,7 @@ namespace Panther
 {
     class GameLogic : GameComponent
     {
-        Camera TheCamera;
+        Camera CameraRef;
         List<Cube> TheBoxs;
         Terrain TheTerrain;
         Numbers ScoreDisplay;
@@ -33,7 +33,7 @@ namespace Panther
 
         public GameLogic(Game game, Camera camera) : base(game)
         {
-            TheCamera = camera;
+            CameraRef = camera;
             TheBoxs = new List<Cube>();
             ScoreDisplay = new Numbers(game);
             WordDisplay = new Letters(game);
@@ -60,12 +60,12 @@ namespace Panther
 
         public void BeginRun()
         {
-            TheTerrain = new Terrain(Game, TheCamera, TerrainEffect, 32, 128, 128, 2);
-            Cube box = new Cube(Game, TheCamera);
+            TheTerrain = new Terrain(Game, CameraRef, TerrainEffect, 32, 5, 10);
+            Cube box = new Cube(Game, CameraRef);
 
             for (int i = 0; i < 3; i++)
             {
-                TheBoxs.Add(new Cube(Game, TheCamera));
+                TheBoxs.Add(new Cube(Game, CameraRef));
             }
 
             TheBoxs[0].ModelScale = new Vector3(20);
