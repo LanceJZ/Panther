@@ -23,6 +23,10 @@ namespace Panther
         Vector3 LightDirection;
         Vector4 LightColor;
         Vector4 AmbiantLightColor;
+        string MapFileName;
+        string Lv1FileName;
+        string Lv2FileName;
+        string Lv3FileName;
         float AmbientLightLevel;
         float LightBrightness;
         float TextureScale;
@@ -32,12 +36,17 @@ namespace Panther
         float[,] Heights;
         #endregion
         #region Constructor
-        public Terrain(Game game, Camera camera, Effect effect, float textureScale,
-            float heightScale, float scale) : base(game)
+        public Terrain(Game game, Camera camera, Effect effect, string mapFileName,
+            string textureLv1File, string textureLv2File, string textureLv3File,
+            float textureScale, float heightScale, float scale) : base(game)
         {
             R_Graphics = Helper.Graphics;
             R_Camera = camera;
             R_Effect = effect;
+            MapFileName = mapFileName;
+            Lv1FileName = textureLv1File;
+            Lv2FileName = textureLv2File;
+            Lv3FileName = textureLv3File;
             TextureScale = textureScale;
             HeightScale = heightScale;
             MaxHeight = heightScale;
@@ -62,10 +71,10 @@ namespace Panther
 
         protected override void LoadContent()
         {
-            TheTexture1 = Helper.LoadTexture("Grass");
-            TheTexture2 = Helper.LoadTexture("Rocky");
-            TheTexture3 = Helper.LoadTexture("Snowy");
-            HeightMap = Helper.LoadTexture("heightmap_flat");
+            TheTexture1 = Helper.LoadTexture(Lv1FileName);
+            TheTexture2 = Helper.LoadTexture(Lv2FileName);
+            TheTexture3 = Helper.LoadTexture(Lv3FileName);
+            HeightMap = Helper.LoadTexture(MapFileName);
         }
 
         public void BeginRun()
@@ -214,18 +223,18 @@ namespace Panther
         {
             int width = HeightMap.Width;
             int height = HeightMap.Height;
-            int indexCount = (width - 1) * (height - 1) * 6;
-            short[] indices = new short[indexCount];
+            int indexCount = ((width - 1) * (height - 1)) * 6;
+            uint[] indices = new uint[indexCount];
             int counter = 0;
 
-            for (short z = 0; z < height - 1; z++)
+            for (int z = 0; z < height - 1; z++)
             {
-                for (short x = 0; x < width - 1; x++)
+                for (int x = 0; x < width - 1; x++)
                 {
-                    short upperLeft = (short)(x + (z * width));
-                    short upperRight = (short)(upperLeft + 1);
-                    short lowerLeft = (short)(upperLeft + width);
-                    short lowerRight = (short)(upperLeft + width + 1);
+                    uint upperLeft = (uint)(x + (z * width));
+                    uint upperRight = upperLeft + 1;
+                    uint lowerLeft = (uint)(upperLeft + width);
+                    uint lowerRight = (uint)(upperLeft + width + 1);
                     indices[counter++] = upperLeft;
                     indices[counter++] = lowerRight;
                     indices[counter++] = lowerLeft;
@@ -235,7 +244,7 @@ namespace Panther
                 }
             }
 
-            TheIBuffer = new IndexBuffer(R_Graphics, IndexElementSize.SixteenBits,
+            TheIBuffer = new IndexBuffer(R_Graphics, IndexElementSize.ThirtyTwoBits,
                 indices.Length, BufferUsage.None);
             TheIBuffer.SetData(indices);
         }
@@ -245,7 +254,7 @@ namespace Panther
         {
             VertexPositionNormalTexture[] vertices =
                 new VertexPositionNormalTexture[TheVBuffer.VertexCount];
-            short[] indices = new short[TheIBuffer.IndexCount];
+            uint[] indices = new uint[TheIBuffer.IndexCount];
             TheVBuffer.GetData(vertices);
             TheIBuffer.GetData(indices);
 
@@ -256,11 +265,11 @@ namespace Panther
 
             int triangleCount = indices.Length / 3;
 
-            for (int i = 0; i < triangleCount; i++)
+            for (uint i = 0; i < triangleCount; i++)
             {
-                int v1 = indices[i * 3];
-                int v2 = indices[(i * 3) + 1];
-                int v3 = indices[(i * 3) + 2];
+                uint v1 = indices[i * 3];
+                uint v2 = indices[(i * 3) + 1];
+                uint v3 = indices[(i * 3) + 2];
                 Vector3 firstSide = vertices[v2].Position - vertices[v1].Position;
                 Vector3 secondSide = vertices[v1].Position - vertices[v3].Position;
                 Vector3 triangleNormal = Vector3.Cross(firstSide, secondSide);

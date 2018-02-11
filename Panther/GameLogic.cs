@@ -60,7 +60,8 @@ namespace Panther
 
         public void BeginRun()
         {
-            TheTerrain = new Terrain(Game, CameraRef, TerrainEffect, 32, 5, 10);
+            TheTerrain = new Terrain(Game, CameraRef, TerrainEffect,
+                "heightmap_01", "Grass", "Rocky", "Snowy", 32, 5, 25);
             Cube box = new Cube(Game, CameraRef);
 
             for (int i = 0; i < 3; i++)
@@ -84,9 +85,10 @@ namespace Panther
             TheBoxs[2].AddAsChildOf(TheBoxs[1]);
             TheBoxs[2].DefuseColor = new Vector3(0.6f, 0.6f, 0.6f);
 
-            ScoreDisplay.Setup(new Vector3(0, 200, 0), 1);
+            ScoreDisplay.Setup(new Vector2(0, 200), 1);
             ScoreDisplay.SetNumber(100);
-            WordDisplay.Setup("This is a TEST", Vector3.Zero, 1);
+            WordDisplay.Setup(Vector2.Zero, 1);
+            WordDisplay.SetWords("This is a TEST");
         }
 
         public override void Update(GameTime gameTime)
