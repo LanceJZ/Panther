@@ -12,7 +12,7 @@ namespace Panther
         Matrix CameraRotation;
         Matrix CachedViewMatrix;
         Matrix CameraOriginalProjection;
-        Vector3 LookAt = Vector3.Forward;
+        Vector3 TheLookAt = Vector3.Forward;
         Vector3 BaseCameraReference = Vector3.Backward;
         public bool NeedViewResync = true;
         public bool NeedLookUpResync;
@@ -36,7 +36,7 @@ namespace Panther
                         * Matrix.CreateFromAxisAngle(CameraRotation.Right, Rotation.X)
                         * Matrix.CreateFromAxisAngle(CameraRotation.Up, Rotation.Y);
 
-                    CachedViewMatrix = Matrix.CreateLookAt(Position, LookAt, CameraRotation.Up);
+                    CachedViewMatrix = Matrix.CreateLookAt(Position, TheLookAt, CameraRotation.Up);
 
                     //NeedViewResync = false;
                 }
@@ -44,6 +44,8 @@ namespace Panther
                 return CachedViewMatrix;
             }
         }
+
+        public Vector3 LookAt { set { TheLookAt = value; } }
         #endregion
         #region Constructor
         public Camera(Game game, Vector3 position, Vector3 rotation, float aspectRatio,
@@ -77,7 +79,7 @@ namespace Panther
         void UpdateLookAt()
         {
             Vector3 lookAtOffset = Vector3.Transform(BaseCameraReference, RotateMatrix(Rotation));
-            LookAt = Position + lookAtOffset;
+            TheLookAt = Position + lookAtOffset;
             NeedViewResync = true;
         }
 
